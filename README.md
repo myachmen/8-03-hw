@@ -21,3 +21,9 @@
 Установим Vagrant на свой компьютер:
 
 ![img](img/image1.png)
+
+![img](img/image2.png)
+
+Склонируем репозиторий с домашним заданием с GitHub себе на компьютер:
+
+![img](img/image3.png)
