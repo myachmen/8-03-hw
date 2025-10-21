@@ -27,3 +27,29 @@
 Склонируем репозиторий с домашним заданием с GitHub себе на компьютер:
 
 ![img](img/image3.png)
+
+Отредактируем файл hosts у себя на компьютере. Добавим в него строку *192.168.56.10 gitlab.localdomain gitlab*:
+
+![img](img/image4.png)
+
+Эта информация взята из Vagrantfile:
+
+![img](img/image5.png)
+
+Запускаем Vagrant для создания виртуальной машины в VirtualBox. Для этого в консоли Git Bash выполняем команду *VAGRANT_EXPERIMENTAL="disks" vagrant up*:
+
+![img](img/image6.png)
+
+После окончания процесса создания виртуальной машины нам нужно узнать пароль от root в GitLab.  Для этого выполним следующие команды.
+
+
+Подключимся к созданной виртуальной машине с помощью команды *vagrant ssh*:
+
+![img](img/image7.png)
+
+Выведем пароль в консоль командой *sudo cat /etc/gitlab/initial_root_password*:
+
+![img](img/image8.png)
+
+
+
