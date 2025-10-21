@@ -34,7 +34,7 @@
 
 Эта информация взята из Vagrantfile:
 
-![img](img/image4.png)
+![img](img/image5.png)
 
 Запускаем Vagrant для создания виртуальной машины в VirtualBox. Для этого в консоли Git Bash выполняем команду *VAGRANT_EXPERIMENTAL="disks" vagrant up*:
 
@@ -54,39 +54,39 @@
 В браузере откроем страницу по адресу http://gitlab.localdomain/ и увидим, что GitLab установлен и работает.
 Зайдём в систему с логином root и паролем, который мы получили на предыдущем шаге:
 
-![img](img/image8.png)
+![img](img/image9.png)
 
 Теперь создадим свой проект в GitLab. Для этого в web-интерфейсе нажмём “New project”, а затем “Create blank project”:
 
-![img](img/image8.png)
+![img](img/image10.png)
 
 Заполним поле Project name и нажмём Create project:
 
-![img](img/image8.png)
+![img](img/image11.png)
 
-![img](img/image8.png)
+![img](img/image12.png)
 
 Зарегистрируем gitlab-runner. Для этого в консоли, которая подключена к виртуальной машине с GitLab, выполним команду:
 
-![img](img/image8.png)
+![img](img/image13.png)
 
 и заполним запрашиваемые параметры:
 
-![img](img/image8.png)
+![img](img/image14.png)
 
-![img](img/image8.png)
+![img](img/image15.png)
 
 После регистрации запустим gitlab-runner выполнив команду:
 
-![img](img/image8.png)
+![img](img/image16.png)
 
 Проверим, что runner запущен:
 
-![img](img/image8.png)
+![img](img/image17.png)
 
 Также мы можем увидеть запущенный runner в web-интерфейсе GitLab:
 
-![img](img/image8.png)
+![img](img/image18.png)
 
 
 
@@ -110,22 +110,23 @@
 Для выполнения задания подготовим локальный репозиторий.
 Для этого в консоли выполним команды:
 
-![img](img/image2.png)
+![img](img/image19.png)
 
 В созданной папке создадим файл .gitlab-ci.yml со следующим содержанием:
 
-![img](img/image2.png)
+![img](img/image20.png)
 
 Теперь выполним push локального репозитория в репозиторий GitLab:
 
-![img](img/image2.png)
+![img](img/image21.png)
 
-![img](img/image2.png)
+![img](img/image22.png)
 
 После этого перейдём в web-интерфейс GitLab и увидим, что job выполнился:
 
-![img](img/image2.png)
+![img](img/image23.png)
 
 В логах можем увидеть сообщение об успешном запуске:
 
-![img](img/image2.png)
+![img](img/image24.png)
+
