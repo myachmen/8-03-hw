@@ -34,7 +34,7 @@
 
 Эта информация взята из Vagrantfile:
 
-![img](img/image5.png)
+![img](img/image4.png)
 
 Запускаем Vagrant для создания виртуальной машины в VirtualBox. Для этого в консоли Git Bash выполняем команду *VAGRANT_EXPERIMENTAL="disks" vagrant up*:
 
