@@ -24,52 +24,52 @@
 
 Установим БД PostgreSQL:
 
-![img](img/image1.png)
+![img](img/image1.jpg)
 
 Запустим и включим службу postgresql:
 
-![img](img/image2.png)
+![img](img/image2.jpg)
 
 Создадим базу данных и пользователя для Zabbix:
 
-![img](img/image3.png)
+![img](img/image3.jpg)
 
 Установим репозиторий Zabbix:
 
-![img](img/image4.png)
+![img](img/image4.jpg)
 
 Установим Zabbix Server, Web UI и Agent 2:
 
-![img](img/image5.png)
+![img](img/image5.jpg)
 
 Импортируем структуру и начальные данные в БД 'zabbix':
 
-![img](img/image6.png)
+![img](img/image6.jpg)
 
 Настроим подключение к БД:
 
-![img](img/image7.png)
+![img](img/image7.jpg)
 
 Запустим и включим службы Zabbix:
 
-![img](img/image8.png)
+![img](img/image8.jpg)
 
 Проверим, что службы работают:
 
-![img](img/image9.png)
+![img](img/image9.jpg)
 
 Проверим, что Zabbix слушает порт:
 
-![img](img/image10.png)
+![img](img/image10.jpg)
 
 Откроем браузер и перейдем по адресу web-панели Zabbix:
 
-![img](img/image11.png)
+![img](img/image11.jpg)
 
 Произведём первоначальную настройку:
 
-![img](img/image12.png)
+![img](img/image12.jpg)
 
 После окончания настройки мы можем аутентифицироваться и войти в систему:
 
-![img](img/image13.png)
+![img](img/image13.jpg)
