@@ -21,3 +21,55 @@
 ## Решение 1
 
 Для выполнения задания выполним следующие действия.
+
+Установим БД PostgreSQL:
+
+![img](img/image1.png)
+
+Запустим и включим службу postgresql:
+
+![img](img/image2.png)
+
+Создадим базу данных и пользователя для Zabbix:
+
+![img](img/image3.png)
+
+Установим репозиторий Zabbix:
+
+![img](img/image4.png)
+
+Установим Zabbix Server, Web UI и Agent 2:
+
+![img](img/image5.png)
+
+Импортируем структуру и начальные данные в БД 'zabbix':
+
+![img](img/image6.png)
+
+Настроим подключение к БД:
+
+![img](img/image7.png)
+
+Запустим и включим службы Zabbix:
+
+![img](img/image8.png)
+
+Проверим, что службы работают:
+
+![img](img/image9.png)
+
+Проверим, что Zabbix слушает порт:
+
+![img](img/image10.png)
+
+Откроем браузер и перейдем по адресу web-панели Zabbix:
+
+![img](img/image11.png)
+
+Произведём первоначальную настройку:
+
+![img](img/image12.png)
+
+После окончания настройки мы можем аутентифицироваться и войти в систему:
+
+![img](img/image13.png)
