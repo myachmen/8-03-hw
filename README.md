@@ -22,9 +22,13 @@
 
 Для выполнения задания выполним следующие действия.
 
-Откроем web-панель Zabbix и перейдём в раздел *Data Collection:
+Откроем web-панель Zabbix и перейдём в раздел *Data Collection > Templates*:
 
 ![img](img/image1.jpg)
+
+Для создания нового шаблона (template), нажмём кнопку *Create template*:
+
+![img](img/image2.jpg)
 
 
 ## Задание 2
