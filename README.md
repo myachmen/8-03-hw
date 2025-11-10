@@ -97,3 +97,29 @@
 Проверим статус сервиса Keepalived:
 
 ![img](img/image16.png)
+
+Проверим наличие Virtual IP на MASTER сервере:
+
+![img](img/image17.png)
+
+Откроем Virtual IP в браузерах на обоих серверах и увидим, что везде отвечает веб-сервер с MASTER сервера:
+
+![img](img/image18.png)
+
+Чтобы проверить переключение на BACKUP сервер, выполним следующие действия.
+
+На MASTER сервере переименуем файл index.html:
+
+![img](img/image19.png)
+
+Обновим в браузере на обоих серверах страницу и увидим, что теперь отвечает BACKUP сервер:
+
+![img](img/image20.png)
+
+В репозитории представлены файлы:
+
+[Конфигурационный файл](MASTER_keepalived.conf) Keepalived MASTER сервера
+
+[Конфигурационный файл](BACKUP_keepalived.conf) Keepalived BACKUP сервера
+
+[Bash-скрипт](check_web.sh)
