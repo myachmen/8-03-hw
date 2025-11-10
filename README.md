@@ -42,7 +42,7 @@
 
 ![img](img/image6.gif)
 
-![Файл](hw_lan.pkt) со схемой (.pkt)
+[Файл](hw_lan.pkt) со схемой (.pkt)
 
 Файл со схемой (.pkt)
 
