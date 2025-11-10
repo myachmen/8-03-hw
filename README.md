@@ -89,3 +89,11 @@
 ![img](img/image13.png)
 
 ![img](img/image14.png)
+
+Перезапустим сервис Keepalived:
+
+![img](img/image15.png)
+
+Проверим статус сервиса Keepalived:
+
+![img](img/image16.png)
