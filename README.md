@@ -1,45 +1,25 @@
-![GitHub](https://img.shields.io/badge/GitHub-Repository-black)
-![Course](https://img.shields.io/badge/Course-DevOps-blue)
-![Platform](https://img.shields.io/badge/Platform-Netology-green)
+# Домашнее задание по теме "Хранение в K8s" Ячмень Марк Викторович
 
+## Задание 1. Volume: обмен данными между контейнерами в поде
 
+Создать Deployment приложения, состоящего из двух контейнеров, обменивающихся данными.
 
-# Домашние задания по курсу "Devops-инженер с нуля: расширенный курс" от Нетологии
+## Решение 1
 
-## Модуль "IT-системы и операционная система Linux" [сертификат](Electronic_certificate/SLINA-51-9785269.pdf)
+Подготовим окружение.
 
-- [Архитектура компьютера. Операционная система](Materials/Computer_architecture_Operating_system.pdf) ([docx](Materials/Computer_architecture_Operating_system.docx))
-- [Знакомство с операционной системой Linux](Materials/Introduction_to_the_Linux_operating_system.pdf) ([docx](Materials/Introduction_to_the_Linux_operating_system.docx))
-- [Основы работы в терминалe ОС Linux](Materials/Basics_of_working_in_the_Linux_OS_terminal.pdf) ([docx](Materials/Basics_of_working_in_the_Linux_OS_terminal.docx))
+Для выполнения домашнего задания будем использовать виртуальную машину `k8s-lab` с MicroK8s, подготовленную в рамках предыдущей домашней работы.
 
-## Модуль "Операционная система Linux" [сертификат](Electronic_certificate/SLINB-51-9785269.pdf)
+После запуска виртуальной машины проверено состояние кластера:
 
-- [Процессы, управление процессами](Materials/Linux_operating_system/Processes_process_management.pdf) ([docx](Materials/Linux_operating_system/Processes_process_management.docx))
-- [Дисковые системы](Materials/Linux_operating_system/Disk_systems.pdf) ([docx](Materials/Linux_operating_system/Disk_systems.docx))
+```
+microk8s status
+kubectl get nodes -o wide
+kubectl get pods -A
+```
 
-## Модуль "Администрирование операционной системы Linux" [сертификат](Electronic_certificate/)
+![img](img/image1.png)
 
-## Модуль "Программирование на Bash" [сертификат](Electronic_certificate/)
+MicroK8s запущен, нода `k8s-lab` находится в состоянии `Ready`.
 
-## Модуль "Сеть, сетевые протоколы" [сертификат](Electronic_certificate/)
-
-## Модуль "Виртуализация" [сертификат](Electronic_certificate/)
-
-## Модуль "Автоматизация и CI/СD" [сертификат](Electronic_certificate/)
-
-## Модуль "Мониторинг" [сертификат](Electronic_certificate/SLINA-51-9785269.pdf)
-
-## Модуль "Отказоустойчивость" [сертификат](Electronic_certificate/)
-
-## Модуль "Системы хранения и передачи данных" [сертификат](Electronic_certificate/)
-
-## Модуль "Реляционные базы данных и администрирование баз данных" [сертификат](Electronic_certificate/)
-
-## Модуль "Информационная безопасность" [сертификат](Electronic_certificate/)
-
-
-## Модуль "Системы управления версиями" [сертификат](Electronic_certificate/)
-
-- [Системы контроля версий](../../tree/hw-Version_control_systems)
-- [Основы Git](../../tree/hw-Git_fundamentals)
-- [Инструменты Git](../../tree/hw-Git_tools)
+Перед выполнением текущего задания удалим ресурсы, созданные в рамках предыдущей работы:
