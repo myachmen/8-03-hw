@@ -224,7 +224,7 @@ microk8s kubectl get all
 
 ![img](img/image14.png)
 
-Cоздадим каталог на ноде для будущего PersistentVolume:
+Создадим каталог на ноде для будущего PersistentVolume:
 
 ```
 sudo mkdir -p /mnt/data
