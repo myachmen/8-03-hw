@@ -13,9 +13,9 @@
 После запуска виртуальной машины проверено состояние кластера:
 
 ```
-microk8s status
-kubectl get nodes -o wide
-kubectl get pods -A
+microk8s status --wait-ready
+microk8s kubectl get nodes -o wide
+microk8s kubectl get pods -A
 ```
 
 ![img](img/image1.png)
@@ -69,3 +69,130 @@ microk8s kubectl get pv,pvc,storageclass
 ![img](img/image5.png)
 
 Ранее созданные `PersistentVolume`, `PersistentVolumeClaim` и `StorageClass` в кластере отсутствуют. Таким образом, кластер подготовлен к выполнению домашнего задания.
+
+Создадим манифест `containers-data-exchange.yaml` следующего содержания:
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-exchange
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-exchange
+  template:
+    metadata:
+      labels:
+        app: data-exchange
+    spec:
+      containers:
+        - name: busybox
+           image: busybox:1.36
+           imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              while true; do
+                echo "$(date)" >> /data/output.txt
+                sleep 5
+              done
+          volumeMounts:
+            - name: shared-data
+              mountPath: /data
+
+        - name: multitool
+          image: wbitt/network-multitool:latest
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            - "tail -f /data/output.txt"
+          volumeMounts:
+            - name: shared-data
+              mountPath: /data
+
+      volumes:
+        - name: shared-data
+          emptyDir: {}
+```
+
+Выполним проверку манифеста:
+
+```
+microk8s kubectl apply --dry-run=server -f containers-data-exchange.yaml
+```
+
+![img](img/image6.png)
+
+
+Применим манифест:
+
+```
+microk8s kubectl apply -f containers-data-exchange.yaml
+```
+
+Проверим Deployment и Pod:
+
+```
+microk8s kubectl get deployments
+microk8s kubectl get pods -o wide
+```
+
+![img](img/image7.png)
+
+Deployment успешно создан. Pod `data-exchange` находится в состоянии `Running`, оба контейнера готовы к работе (`2/2`).
+
+Сохраним имя Pod, чтобы в дальнейшем не вводить длинное имя:
+
+``
+POD=$(microk8s kubectl get pod -l app=data-exchange -o jsonpath='{.items[0].metadata.name}')
+echo $POD
+```
+
+![img](img/image8.png)
+
+Читаем файл со стороны ```busybox```:
+
+```
+microk8s kubectl exec $POD -c busybox -- tail -n 5 /data/output.txt
+```
+
+![img](img/image9.png)
+
+Читаем тот же файл из ```multitool```:
+
+```
+microk8s kubectl exec $POD -c multitool -- tail -n 5 /data/output.txt
+```
+
+![img](img/image10.png)
+
+Выполним демонстрацию, необходимую по заданию:
+
+```
+microk8s kubectl exec $POD -c multitool -- tail -f /data/output.txt
+```
+
+В выводе видно, что новые строки появляются примерно каждые 5 секунд. Таким образом, контейнер `busybox` записывает данные в общий Volume, а контейнер `multitool` читает эти данные из того же файла.
+
+Проверим конфигурацию Pod:
+
+```
+microk8s kubectl describe pod $POD
+```
+
+В выводе видно, что оба контейнера используют общий Volume:
+
+```
+Mounts:
+  /data from shared-data (rw)
+```
+
+Сам Volume имеет тип `EmptyDir`:
+
+```
+Volumes:
+  shared-data:
+    Type: EmptyDir
+```
