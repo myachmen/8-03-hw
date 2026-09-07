@@ -384,3 +384,32 @@ tail -n 5 /mnt/data/output.txt
 В выводе увидим те же данные, что читали из контейнера:
 
 ![img](img/image21.png)
+
+Удалим только Deployment:
+
+```
+microk8s kubectl delete deployment data-exchange-pv
+```
+![img](img/image22.png)
+
+Проверим состояние ресурсов:
+
+```
+microk8s kubectl get all
+microk8s kubectl get pv,pvc
+```
+
+![img](img/image23.png)
+
+После удаления Deployment созданный Pod был удалён, при этом PersistentVolume и PersistentVolumeClaim сохранились и остались связанными.
+
+Проверим наличие данных непосредственно на ноде:
+
+```
+ls -lah /mnt/data
+tail -n 5 /mnt/data/output.txt
+```
+
+![img](img/image24.png)
+
+Файл /mnt/data/output.txt сохранился после удаления Deployment.
