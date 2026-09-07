@@ -152,7 +152,7 @@ echo $POD
 
 ![img](img/image8.png)
 
-Читаем файл со стороны `busybox`:
+Прочитаем файл из контейнера `busybox`:
 
 ```
 microk8s kubectl exec $POD -c busybox -- tail -n 5 /data/output.txt
@@ -160,7 +160,7 @@ microk8s kubectl exec $POD -c busybox -- tail -n 5 /data/output.txt
 
 ![img](img/image9.png)
 
-Читаем тот же файл из `multitool`:
+Прочитаем тот же файл из контейнера `multitool`:
 
 ```
 microk8s kubectl exec $POD -c multitool -- tail -n 5 /data/output.txt
@@ -209,7 +209,7 @@ Volumes:
 
 ## Решение 2
 
-Удалим рексурсы первого задания:
+Удалим ресурсы первого задания:
 
 ```
 microk8s kubectl delete -f containers-data-exchange.yaml
@@ -341,6 +341,8 @@ microk8s kubectl get pv,pvc
 
 ![img](img/image18.png)
 
+PersistentVolume `pv-data` и PersistentVolumeClaim `pvc-data` успешно связаны и находятся в состоянии `Bound`.
+
 Проверим Deployment и Pod:
 
 ```
@@ -365,14 +367,9 @@ microk8s kubectl exec $POD -c multitool -- tail -n 5 /data/output.txt
 
 ![img](img/image20.png)
 
-В первом задании файл существовал только внутри `emptyDir`. 
-Теперь физическим хранилищем PV является:
+В первом задании для хранения данных использовался Volume типа `emptyDir`, жизненный цикл которого связан с Pod.
 
-```
-/mnt/data
-```
-
-на виртуальной машине `k8s-lab`.
+Во втором задании PersistentVolume `pv-data` использует `hostPath` `/mnt/data` на ноде `k8s-lab`. Поэтому данные физически записываются в каталог `/mnt/data` файловой системы ноды.
 
 Выполним команды:
 
@@ -412,4 +409,8 @@ tail -n 5 /mnt/data/output.txt
 
 ![img](img/image24.png)
 
-Файл /mnt/data/output.txt сохранился после удаления Deployment.
+Файл `/mnt/data/output.txt` сохранился после удаления Deployment. При этом новые записи в файл больше не добавляются, поскольку Pod и контейнер `busybox`, выполнявший запись данных каждые 5 секунд, были удалены.
+
+Таким образом, удаление Deployment и созданного им Pod не привело к удалению PersistentVolume, PersistentVolumeClaim и данных, находящихся в хранилище.
+
+Манифест: [pv-pvc.yaml](manifests/k8s-storage/pv-pvc.yaml)
