@@ -176,13 +176,15 @@ microk8s kubectl exec $POD -c multitool -- tail -f /data/output.txt
 
 ![img](img/image11.png)
 
-В выводе видно, что новые строки появляются примерно каждые 5 секунд. Таким образом, контейнер `busybox` записывает данные в общий Volume, а контейнер `multitool` читает эти данные из того же файла.
+В выводе видно, что новые строки появляются примерно каждые 5 секунд. 
+Таким образом, контейнер `busybox` каждые 5 секунд записывает данные в файл `/data/output.txt`, расположенный в общем Volume `shared-data` типа `emptyDir`. Контейнер `multitool` монтирует тот же Volume и успешно читает изменения файла в режиме реального времени.
 
 Проверим конфигурацию Pod:
 
 ```
 microk8s kubectl describe pod $POD
 ```
+![img](img/image12.png)
 
 В выводе видно, что оба контейнера используют общий Volume:
 
@@ -200,3 +202,185 @@ Volumes:
 ```
 
 Манифест: [containers-data-exchange.yaml](manifests/k8s-storage/containers-data-exchange.yaml)
+
+## Задание 2. PV, PVC
+
+Создать Deployment приложения, использующего локальный PV, созданный вручную.
+
+## Решение 2
+
+Удалим рексурсы первого задания:
+
+```
+microk8s kubectl delete -f containers-data-exchange.yaml
+```
+![img](img/image13.png)
+
+Проверим состояние:
+
+```
+microk8s kubectl get all
+```
+
+![img](img/image14.png)
+
+Cоздадим каталог на ноде для будущего PersistentVolume:
+
+```
+sudo mkdir -p /mnt/data
+sudo chmod 777 /mnt/data
+ls -ld /mnt/data
+```
+
+Проверим, что каталог пока пуст:
+
+```
+ls -la /mnt/data
+```
+
+![img](img/image15.png)
+
+Создадим файл манифеста `pv-pvc.yaml` следующего содержания:
+
+```
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-data
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: manual
+  hostPath:
+    path: /mnt/data
+    type: Directory
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: manual
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-exchange-pv
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-exchange-pv
+  template:
+    metadata:
+      labels:
+        app: data-exchange-pv
+    spec:
+      containers:
+        - name: busybox
+          image: busybox:1.36
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              while true; do
+                echo "$(date)" >> /data/output.txt
+                sleep 5
+              done
+          volumeMounts:
+            - name: persistent-data
+              mountPath: /data
+
+        - name: multitool
+          image: wbitt/network-multitool:latest
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            - "tail -f /data/output.txt"
+          volumeMounts:
+            - name: persistent-data
+              mountPath: /data
+
+      volumes:
+        - name: persistent-data
+          persistentVolumeClaim:
+            claimName: pvc-data
+```
+
+Выполним проверку манифеста:
+
+```
+microk8s kubectl apply --dry-run=server -f pv-pvc.yaml
+```
+
+![img](img/image16.png)
+
+Применим манифест:
+
+```
+microk8s kubectl apply -f pv-pvc.yaml
+```
+
+![img](img/image17.png)
+
+Посмотрим состояние PV и PVC:
+
+```
+microk8s kubectl get pv,pvc
+```
+
+![img](img/image18.png)
+
+Проверим Deployment и Pod:
+
+```
+microk8s kubectl get deployments
+microk8s kubectl get pods -o wide
+```
+
+![img](img/image19.png)
+
+Сохраним имя нового Pod, чтобы в дальнейшем не вводить длинное имя:
+
+```
+POD=$(microk8s kubectl get pod -l app=data-exchange-pv -o jsonpath='{.items[0].metadata.name}')
+echo $POD
+```
+
+Проверим файл через `multitool`:
+
+```
+microk8s kubectl exec $POD -c multitool -- tail -n 5 /data/output.txt
+```
+
+![img](img/image20.png)
+
+В первом задании файл существовал только внутри `emptyDir`. 
+Теперь физическим хранилищем PV является:
+
+```
+/mnt/data
+```
+
+на виртуальной машине `k8s-lab`.
+
+Выполним команды:
+
+```
+ls -lah /mnt/data
+tail -n 5 /mnt/data/output.txt
+```
+
+В выводе увидим те же данные, что читали из контейнера:
+
+![img](img/image21.png)
