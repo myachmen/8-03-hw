@@ -623,6 +623,8 @@ spec:
             claimName: pvc-data-sc
 ```
 
+StorageClass `storage-local` использует provisioner `kubernetes.io/no-provisioner`, поэтому динамическое создание PersistentVolume не выполняется. По этой причине PersistentVolume `pv-data-sc` создаётся вручную и связывается с PVC через StorageClass `storage-local`.
+
 Выполним проверку манифеста:
 
 ```
@@ -650,7 +652,7 @@ microk8s kubectl get pods -o wide
 
 ![img](img/image35.png)
 
-StorageClass `storage-local` успешно создан с provisioner `kubernetes.io/no-provisioner` и режимом связывания `WaitForFirstConsumer`.
+StorageClass `storage-local` успешно создан с использованием `kubernetes.io/no-provisioner` и режима связывания `WaitForFirstConsumer`.
 
 PersistentVolume `pv-data-sc` и PersistentVolumeClaim `pvc-data-sc` успешно связаны и находятся в состоянии `Bound`. Deployment `data-exchange-sc` создан, Pod находится в состоянии `Running`, оба контейнера готовы к работе (`2/2`).
 
@@ -705,6 +707,9 @@ microk8s kubectl describe pvc pvc-data-sc
 
 ![img](img/image39.png)
 
+В каталоге `/mnt/data-sc` на ноде присутствует файл `output.txt` с теми же данными, которые доступны контейнерам через `/data/output.txt`. Это подтверждает, что PersistentVolume использует локальный каталог `/mnt/data-sc`.
+
+Из вывода `kubectl describe pvc pvc-data-sc` видно, что PVC находится в состоянии `Bound`, связан с PersistentVolume `pv-data-sc` и использует StorageClass `storage-local`.
 
 Таким образом, созданный StorageClass `storage-local` используется PVC `pvc-data-sc`, который связан с PersistentVolume `pv-data-sc`. Оба контейнера Deployment используют общий PVC и успешно обмениваются данными через файл `/data/output.txt`.
 
