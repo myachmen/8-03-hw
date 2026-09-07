@@ -201,7 +201,7 @@ Volumes:
     Type: EmptyDir
 ```
 
-Манифест: [containers-data-exchange.yaml](manifests/k8s-storage/containers-data-exchange.yaml)
+
 
 ## Задание 2. PV, PVC
 
@@ -516,8 +516,6 @@ Source:
 
 Таким образом, в данном случае данные сохранились даже после последовательного удаления Deployment, PVC и PV.
 
-Манифест: [pv-pvc.yaml](manifests/k8s-storage/pv-pvc.yaml)
-
 
 
 ## Задание 3. StorageClass
@@ -710,4 +708,17 @@ microk8s kubectl describe pvc pvc-data-sc
 
 Таким образом, созданный StorageClass `storage-local` используется PVC `pvc-data-sc`, который связан с PersistentVolume `pv-data-sc`. Оба контейнера Deployment используют общий PVC и успешно обмениваются данными через файл `/data/output.txt`.
 
-Манифест: [sc.yaml](manifests/k8s-storage/sc.yaml)
+
+## Ссылки на манифесты
+
+### Задание 1
+
+- [containers-data-exchange.yaml](manifests/k8s-storage/containers-data-exchange.yaml)
+
+### Задание 2
+
+- [pv-pvc.yaml](manifests/k8s-storage/pv-pvc.yaml)
+
+### Задание 3
+
+- [sc.yaml](manifests/k8s-storage/sc.yaml)
