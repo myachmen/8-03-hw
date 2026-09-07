@@ -438,7 +438,7 @@ PersistentVolumeClaim `pvc-data` был удалён. PersistentVolume `pv-data`
 persistentVolumeReclaimPolicy: Retain
 ```
 
-Политика `Retain` сохраняет PersistentVolume после удаления связанного с ним PersistentVolumeClaim и не удаляет находящиеся в хранилище данные.
+При политике `Retain` после удаления связанного PVC PersistentVolume переходит в состояние `Released`, а данные в связанном хранилище не удаляются автоматически.
 
 Проверим сохранность файла непосредственно на ноде:
 
@@ -449,7 +449,7 @@ tail -n 5 /mnt/data/output.txt
 
 ![img](img/image27.png)
 
-Несмотря на удаление PVC, файл /mnt/data/output.txt и записанные в него данные сохранились в каталоге /mnt/data на ноде.
+Несмотря на удаление PVC, файл `/mnt/data/output.txt` и записанные в него данные сохранились в каталоге `/mnt/data` на ноде.
 
 Для более подробной проверки состояния PersistentVolume выполним:
 
@@ -459,7 +459,7 @@ microk8s kubectl describe pv pv-data
 
 ![img](img/image28.png)
 
-В выводе видно, что PersistentVolume находится в состоянии Released, при этом сохраняется информация о ранее использовавшем его PVC:
+В выводе видно, что PersistentVolume находится в состоянии `Released`, при этом сохраняется информация о ранее использовавшем его PVC:
 
 ```
 Status:          Released
@@ -467,7 +467,7 @@ Claim:           default/pvc-data
 Reclaim Policy:  Retain
 ```
 
-Также видно, что PV использует локальный каталог /mnt/data на ноде:
+Также видно, что PV использует локальный каталог `/mnt/data` на ноде:
 
 ```
 Source:
@@ -475,7 +475,7 @@ Source:
   Path:          /mnt/data
 ```
 
-Состояние Released означает, что связанный с PV PersistentVolumeClaim был удалён, однако сам PersistentVolume ещё не был повторно предоставлен для использования. Благодаря политике Retain данные в хранилище сохраняются после удаления PVC.
+Состояние Released означает, что связанный с PV PersistentVolumeClaim был удалён, однако сам PersistentVolume ещё не был повторно предоставлен для использования. Благодаря политике `Retain` данные в хранилище сохраняются после удаления PVC.
 
 Удалим объект PV:
 
@@ -501,6 +501,20 @@ tail -n 5 /mnt/data/output.txt
 ```
 
 ![img](img/image31.png)
+
+После удаления PersistentVolume объект `pv-data` больше не существует в Kubernetes, однако файл `/mnt/data/output.txt` и записанные в него данные сохранились на файловой системе ноды.
+
+Это связано с тем, что PersistentVolume использовал локальный каталог ноды через `hostPath`:
+
+```
+Source:
+  Type: HostPath
+  Path: /mnt/data
+```
+
+Удаление объекта PersistentVolume из Kubernetes удаляет описание хранилища из API кластера, но не удаляет сам каталог `/mnt/data` и находящиеся в нём файлы.
+
+Таким образом, в данном случае данные сохранились даже после последовательного удаления Deployment, PVC и PV.
 
 Манифест: [pv-pvc.yaml](manifests/k8s-storage/pv-pvc.yaml)
 
