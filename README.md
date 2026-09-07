@@ -518,3 +518,165 @@ Source:
 
 Манифест: [pv-pvc.yaml](manifests/k8s-storage/pv-pvc.yaml)
 
+
+
+## Задание 3. PV, PVC
+
+Создать Deployment приложения, использующего PVC, созданный на основе StorageClass.
+
+## Решение 3
+
+Cоздадим новый каталог на ноде, чтобы не смег=шивать результаты с предыдущим заданием:
+
+```
+sudo mkdir -p /mnt/data-sc
+sudo chmod 777 /mnt/data-sc
+
+ls -ld /mnt/data-sc
+ls -la /mnt/data-sc
+```
+
+![img](img/image32.png)
+
+Создадим файл манифеста `sc.yaml` следующего содержания:
+
+```
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: storage-local
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-data-sc
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: storage-local
+  hostPath:
+    path: /mnt/data-sc
+    type: Directory
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-data-sc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  storageClassName: storage-local
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-exchange-sc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-exchange-sc
+  template:
+    metadata:
+      labels:
+        app: data-exchange-sc
+    spec:
+      containers:
+        - name: busybox
+          image: busybox:1.36
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              while true; do
+                echo "$(date)" >> /data/output.txt
+                sleep 5
+              done
+          volumeMounts:
+            - name: persistent-data
+              mountPath: /data
+
+        - name: multitool
+          image: wbitt/network-multitool:latest
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            - "tail -f /data/output.txt"
+          volumeMounts:
+            - name: persistent-data
+              mountPath: /data
+
+      volumes:
+        - name: persistent-data
+          persistentVolumeClaim:
+            claimName: pvc-data-sc
+```
+
+Выполним проверку манифеста:
+
+```
+microk8s kubectl apply --dry-run=server -f sc.yaml
+```
+
+![img](img/image33.png)
+
+Применим манифест:
+
+```
+microk8s kubectl apply -f sc.yaml
+```
+
+![img](img/image34.png)
+
+Проверим, как Kubernetes связал StorageClass, PV и PVC:
+
+```
+microk8s kubectl get storageclass
+microk8s kubectl get pv,pvc
+microk8s kubectl get deployments
+microk8s kubectl get pods -o wide
+```
+
+![img](img/image35.png)
+
+Сохраним имя Pod, чтобы в дальнейшем не вводить длинное имя:
+
+```
+POD=$(microk8s kubectl get pod -l app=data-exchange-sc -o jsonpath='{.items[0].metadata.name}')
+echo $POD
+```
+
+![img](img/image36.png)
+
+Проверим последние строки из `busybox`:
+
+```
+microk8s kubectl exec $POD -c busybox -- tail -n 5 /data/output.txt
+```
+
+Проверим тот же файл из `multitool`:
+
+```
+microk8s kubectl exec $POD -c multitool -- tail -n 5 /data/output.txt
+```
+
+![img](img/image37.png)
+
+Выполним демонстрацию, необходимую по заданию:
+
+```
+microk8s kubectl exec $POD -c multitool -- tail -f /data/output.txt
+```
