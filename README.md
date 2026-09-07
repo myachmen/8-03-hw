@@ -89,8 +89,8 @@ spec:
     spec:
       containers:
         - name: busybox
-           image: busybox:1.36
-           imagePullPolicy: IfNotPresent
+          image: busybox:1.36
+          imagePullPolicy: IfNotPresent
           command: ["/bin/sh", "-c"]
           args:
             - |
@@ -152,7 +152,7 @@ echo $POD
 
 ![img](img/image8.png)
 
-Читаем файл со стороны ```busybox```:
+Читаем файл со стороны `busybox`:
 
 ```
 microk8s kubectl exec $POD -c busybox -- tail -n 5 /data/output.txt
@@ -160,7 +160,7 @@ microk8s kubectl exec $POD -c busybox -- tail -n 5 /data/output.txt
 
 ![img](img/image9.png)
 
-Читаем тот же файл из ```multitool```:
+Читаем тот же файл из `multitool`:
 
 ```
 microk8s kubectl exec $POD -c multitool -- tail -n 5 /data/output.txt
@@ -173,6 +173,8 @@ microk8s kubectl exec $POD -c multitool -- tail -n 5 /data/output.txt
 ```
 microk8s kubectl exec $POD -c multitool -- tail -f /data/output.txt
 ```
+
+![img](img/image11.png)
 
 В выводе видно, что новые строки появляются примерно каждые 5 секунд. Таким образом, контейнер `busybox` записывает данные в общий Volume, а контейнер `multitool` читает эти данные из того же файла.
 
@@ -196,3 +198,5 @@ Volumes:
   shared-data:
     Type: EmptyDir
 ```
+
+Манифест: [containers-data-exchange.yaml](manifests/k8s-storage/containers-data-exchange.yaml)
