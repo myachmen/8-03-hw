@@ -413,4 +413,94 @@ tail -n 5 /mnt/data/output.txt
 
 Таким образом, удаление Deployment и созданного им Pod не привело к удалению PersistentVolume, PersistentVolumeClaim и данных, находящихся в хранилище.
 
+Удалим PersistentVolumeClaim `pvc-data`:
+
+```
+microk8s kubectl delete pvc pvc-data
+```
+
+![img](img/image25.png)
+
+
+Посмотрим состояние PV и PVC:
+
+```
+microk8s kubectl get pv,pvc
+```
+
+![img](img/image26.png)
+
+PersistentVolumeClaim `pvc-data` был удалён. PersistentVolume `pv-data` при этом сохранился, но перешёл из состояния `Bound` в состояние `Released`.
+
+Это связано с установленной для PV политикой освобождения:
+
+```
+persistentVolumeReclaimPolicy: Retain
+```
+
+Политика `Retain` сохраняет PersistentVolume после удаления связанного с ним PersistentVolumeClaim и не удаляет находящиеся в хранилище данные.
+
+Проверим сохранность файла непосредственно на ноде:
+
+```
+ls -lah /mnt/data
+tail -n 5 /mnt/data/output.txt
+```
+
+![img](img/image27.png)
+
+Несмотря на удаление PVC, файл /mnt/data/output.txt и записанные в него данные сохранились в каталоге /mnt/data на ноде.
+
+Для более подробной проверки состояния PersistentVolume выполним:
+
+```
+microk8s kubectl describe pv pv-data
+```
+
+![img](img/image28.png)
+
+В выводе видно, что PersistentVolume находится в состоянии Released, при этом сохраняется информация о ранее использовавшем его PVC:
+
+```
+Status:          Released
+Claim:           default/pvc-data
+Reclaim Policy:  Retain
+```
+
+Также видно, что PV использует локальный каталог /mnt/data на ноде:
+
+```
+Source:
+  Type:          HostPath
+  Path:          /mnt/data
+```
+
+Состояние Released означает, что связанный с PV PersistentVolumeClaim был удалён, однако сам PersistentVolume ещё не был повторно предоставлен для использования. Благодаря политике Retain данные в хранилище сохраняются после удаления PVC.
+
+Удалим объект PV:
+
+```
+microk8s kubectl delete pv pv-data
+```
+
+![img](img/image29.png)
+
+Посмотрим состояние PV и PVC:
+
+```
+microk8s kubectl get pv,pvc
+```
+
+![img](img/image30.png)
+
+Проверим сохранность файла непосредственно на ноде:
+
+```
+ls -lah /mnt/data
+tail -n 5 /mnt/data/output.txt
+```
+
+![img](img/image31.png)
+
 Манифест: [pv-pvc.yaml](manifests/k8s-storage/pv-pvc.yaml)
+
