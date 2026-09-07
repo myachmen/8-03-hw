@@ -20,6 +20,52 @@ kubectl get pods -A
 
 ![img](img/image1.png)
 
-MicroK8s запущен, нода `k8s-lab` находится в состоянии `Ready`.
+MicroK8s запущен, нода `k8s-lab` находится в состоянии `Ready`. 
+Системные компоненты Kubernetes находятся в состоянии `Running`.
 
-Перед выполнением текущего задания удалим ресурсы, созданные в рамках предыдущей работы:
+Также проверим наличие свободного дискового пространства:
+
+```
+df -h
+```
+
+![img](img/image2.png)
+
+На системном разделе виртуальной машины доступно около 34 ГБ свободного пространства, чего достаточно для выполнения задания.
+
+Перед выполнением текущей домашней работы удалим ресурсы, оставшиеся после предыдущего задания:
+
+```
+microk8s kubectl delete -f deployment-multi-container.yaml
+microk8s kubectl delete -f service-clusterip.yaml
+microk8s kubectl delete -f deployment-backend.yaml
+microk8s kubectl delete -f deployment-frontend.yaml
+microk8s kubectl delete -f service-backend.yaml
+microk8s kubectl delete -f service-frontend.yaml
+microk8s kubectl delete -f ingress.yaml
+microk8s kubectl delete -f middleware-strip-api.yaml
+microk8s kubectl delete -f service-nodeport.yaml
+```
+
+![img](img/image3.png)
+
+После удаления проверим состояние namespace `default`:
+
+```
+microk8s kubectl get all
+microk8s kubectl get ingress
+```
+
+![img](img/image4.png)
+
+После удаления ресурсов предыдущей домашней работы в namespace `default` остался только стандартный Service `kubernetes`.
+
+Перед началом работы с хранилищами также проверим отсутствие ранее созданных PersistentVolume, PersistentVolumeClaim и StorageClass:
+
+```
+microk8s kubectl get pv,pvc,storageclass
+```
+
+![img](img/image5.png)
+
+Ранее созданные `PersistentVolume`, `PersistentVolumeClaim` и `StorageClass` в кластере отсутствуют. Таким образом, кластер подготовлен к выполнению домашнего задания.
