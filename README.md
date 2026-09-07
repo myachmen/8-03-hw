@@ -520,13 +520,13 @@ Source:
 
 
 
-## Задание 3. PV, PVC
+## Задание 3. StorageClass
 
 Создать Deployment приложения, использующего PVC, созданный на основе StorageClass.
 
 ## Решение 3
 
-Cоздадим новый каталог на ноде, чтобы не смег=шивать результаты с предыдущим заданием:
+Создадим новый каталог на ноде, чтобы не смешивать результаты с предыдущим заданием:
 
 ```
 sudo mkdir -p /mnt/data-sc
@@ -652,6 +652,10 @@ microk8s kubectl get pods -o wide
 
 ![img](img/image35.png)
 
+StorageClass `storage-local` успешно создан с provisioner `kubernetes.io/no-provisioner` и режимом связывания `WaitForFirstConsumer`.
+
+PersistentVolume `pv-data-sc` и PersistentVolumeClaim `pvc-data-sc` успешно связаны и находятся в состоянии `Bound`. Deployment `data-exchange-sc` создан, Pod находится в состоянии `Running`, оба контейнера готовы к работе (`2/2`).
+
 Сохраним имя Pod, чтобы в дальнейшем не вводить длинное имя:
 
 ```
@@ -675,8 +679,35 @@ microk8s kubectl exec $POD -c multitool -- tail -n 5 /data/output.txt
 
 ![img](img/image37.png)
 
+В выводе обоих контейнеров видны одинаковые данные из файла `/data/output.txt`. Это подтверждает, что контейнеры `busybox` и `multitool` используют один и тот же PersistentVolume через PVC `pvc-data-sc`.
+
 Выполним демонстрацию, необходимую по заданию:
 
 ```
 microk8s kubectl exec $POD -c multitool -- tail -f /data/output.txt
 ```
+
+![img](img/image38.png)
+
+В выводе видно, что новые строки появляются каждые 5 секунд. Контейнер `busybox` записывает данные в общий том, а контейнер `multitool` читает изменения файла в режиме реального времени.
+
+Выполним ещё одну проверку.
+Проверим тот же файл непосредственно на ноде:
+
+```
+ls -lah /mnt/data-sc
+tail -n 5 /mnt/data-sc/output.txt
+```
+
+Выведем описание PVC:
+
+```
+microk8s kubectl describe pvc pvc-data-sc
+```
+
+![img](img/image39.png)
+
+
+Таким образом, созданный StorageClass `storage-local` используется PVC `pvc-data-sc`, который связан с PersistentVolume `pv-data-sc`. Оба контейнера Deployment используют общий PVC и успешно обмениваются данными через файл `/data/output.txt`.
+
+Манифест: [sc.yaml](manifests/k8s-storage/sc.yaml)
