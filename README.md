@@ -145,7 +145,7 @@ Deployment успешно создан. Pod `data-exchange` находится �
 
 Сохраним имя Pod, чтобы в дальнейшем не вводить длинное имя:
 
-``
+```
 POD=$(microk8s kubectl get pod -l app=data-exchange -o jsonpath='{.items[0].metadata.name}')
 echo $POD
 ```
